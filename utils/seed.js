@@ -90,6 +90,9 @@ connection.once('open', async () => {
   await User.collection.insertMany(users)
   await Thought.collection.insertMany(thoughts);
 
+  //await User.bulkSave(users)
+  //await Thought.bulkSave(thoughts)
+
   // loop through the saved thoughtss, for each thoughts we need to generate a thoughts response and insert the thoughts responses
   console.table(users);
   console.table(thoughts);

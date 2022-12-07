@@ -87,7 +87,6 @@ async function updateThought(req, res) {
         if (req.body.createdBy != null) {
             foundData = true
             let sameUser = false
-
             const userData2 = await User.findOne({ _id: req.body.createdBy })
             .catch(
                 function () {
@@ -107,8 +106,9 @@ async function updateThought(req, res) {
                 sameUser = true
             }
 
+            console.log(sameUser)
             if (sameUser == true) {
-                data.username = userData.username
+                //data.username = userData.username
                 data.thoughtText = req.body.thoughtText;
                 await data.save();
                 res.json(data);
@@ -126,9 +126,14 @@ async function updateThought(req, res) {
 
                 userData2.thoughts[userData2.thoughts.length] = req.params.thoughtId;
 
+
+                data.thoughtText = req.body.thoughtText;
+                data.username = userData2.username;
+                data.createdBy = userData2._id
+
                 await userData.save()
                 await userData2.save()
-
+                await data.save()
                 res.json(data);
                 return
             }

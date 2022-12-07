@@ -147,9 +147,12 @@ async function deleteUser(req, res) {
         }
 
         const data = await User.deleteOne({_id: req.params.userId});
+
         
         if (data.deletedCount != 0) {
+            const thoughtData = await Thought.deleteMany({createdBy: req.params.userId})
             res.json({message: 'Success'})
+            return
 
         }
         if (data.deletedCount == 0) {

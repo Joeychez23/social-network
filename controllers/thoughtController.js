@@ -78,7 +78,6 @@ async function updateThought(req, res) {
 
         if (req.body.createdBy == null && userData != null) {
             data.thoughtText = req.body.thoughtText;
-            console.log(data)
             await data.save();
             res.json(data);
             return
@@ -106,7 +105,6 @@ async function updateThought(req, res) {
                 sameUser = true
             }
 
-            console.log(sameUser)
             if (sameUser == true) {
                 //data.username = userData.username
                 data.thoughtText = req.body.thoughtText;

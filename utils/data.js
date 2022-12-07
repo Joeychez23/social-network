@@ -102,11 +102,13 @@ const getRandomName = () =>
 const getRandomThoughts = (users) => {
     let results = [];
     for (let i = 0; i < 20; i++) {
+        let user = users[Math.floor(Math.random() * users.length)]
         results.push({
             createdAt: new Date,
             thoughtText: getRandomArrItem(descriptionsBodies),
-            username: users[Math.floor(Math.random() * users.length)].username,
+            username: user.username,
             reactions: [...getThoughtReactions(users)],
+            createdBy: user._id
         });
     }
     return results;
@@ -115,12 +117,14 @@ const getRandomThoughts = (users) => {
 // Create the responses that will be added to each video
 const getThoughtReactions = (users) => {
     let results = [];
-    for (let i = 0; i < users.length; i++) {
+    for (let i = 0; i < Math.floor(Math.random() * users.length); i++) {
+        let user = users[Math.floor(Math.random() * users.length)]
         results.push({
-            _id: new ObjectID(),
+            reactionId: new ObjectID(),
             reactionBody: getRandomArrItem(possibleResponses),
-            username: users[Math.floor(Math.random() * users.length)].username,
-            createdAt: new Date
+            username: user.username,
+            createdAt: new Date,
+            createdBy: user._id
         });
     }
     return results;

@@ -1,10 +1,15 @@
-const { User, Thought } = require('../models');
+const { User, Thought, Reaction } = require('../models');
 const { find } = require('../models/User');
+const ObjectID = require('bson').ObjectID;
 
 async function getThoughts(req, res) {
     try {
 
         const data = await Thought.find({})
+        if (data == null) {
+            res.json({ message: "No thoughts found" })
+            return
+        }
         res.json(data);
     } catch (err) {
         res.status(500).json(err);
@@ -16,6 +21,10 @@ async function getThought(req, res) {
     try {
 
         const data = await Thought.findOne({ _id: req.params.thoughtId })
+        if (data == null) {
+            res.json({ message: "No thought found" })
+            return
+        }
         res.json(data);
     } catch (err) {
         res.status(500).json(err);
@@ -31,6 +40,7 @@ async function createThought(req, res) {
             return
         })
         if (userData == null) {
+            res.json({ message: "No User found" })
             return
         }
         const username = userData.username
@@ -43,7 +53,6 @@ async function createThought(req, res) {
 
         })
         await data.save()
-
 
         userData.thoughts[userData.thoughts.length] = data._id
 
@@ -74,7 +83,15 @@ async function updateThought(req, res) {
                 return
             }
         }
+
+        if(data == null) {
+            res.json({ message: "No thought found" })
+            return
+        }
+
         const userData = await User.findOne({ _id: data.createdBy });
+
+
 
         if (req.body.createdBy == null && userData != null) {
             data.thoughtText = req.body.thoughtText;
@@ -87,17 +104,22 @@ async function updateThought(req, res) {
             foundData = true
             let sameUser = false
             const userData2 = await User.findOne({ _id: req.body.createdBy })
-            .catch(
-                function () {
-                    res.json({ message: "No User found" })
-                    return foundData = false
-                }
-            )
+                .catch(
+                    function () {
+                        res.json({ message: "No User found" })
+                        return foundData = false
+                    }
+                )
 
             if (foundData == false) {
                 {
                     return
                 }
+            }
+
+            if(userData2 == null) {
+                res.json({ message: "No User found" })
+                return
             }
 
 
@@ -106,7 +128,6 @@ async function updateThought(req, res) {
             }
 
             if (sameUser == true) {
-                //data.username = userData.username
                 data.thoughtText = req.body.thoughtText;
                 await data.save();
                 res.json(data);
@@ -149,13 +170,22 @@ async function deleteThought(req, res) {
 
         let foundData = true
         const data = await Thought.findOne({ _id: req.params.thoughtId })
-        await Thought.deleteOne({ _id: req.params.thoughtId })
             .catch(
                 function () {
                     res.json({ message: "No Thought found" })
                     return foundData = false
                 }
             )
+        if (foundData == false) {
+            {
+                return
+            }
+        }
+        if(data == null) {
+            res.json({ message: "No thought found" })
+            return
+        }
+        await Thought.deleteOne({ _id: req.params.thoughtId })
 
         const userData = await User.findOne({ _id: data.createdBy })
 
@@ -178,10 +208,146 @@ async function deleteThought(req, res) {
     }
 }
 
+
+async function createReaction(req, res) {
+    try {
+        if (req.body.createdBy == null) {
+            res.json({ message: 'Add a createdBy: user: _id to the json body' })
+            return
+        }
+
+        if (req.body.reactionBody == null) {
+            res.json({ message: 'Add a content to the reactionBody in the json body' })
+            return
+        }
+
+        if (req.body.createdBy != null && req.body.reactionBody != null) {
+            let foundData = true
+            const thoughtData = await Thought.findOne({ _id: req.params.thoughtId }).catch(
+                function () {
+                    res.json({ message: "No thought found" })
+                    return foundData = false
+                }
+            )
+
+
+            const userData = await User.findOne({ _id: req.body.createdBy }).catch(
+                function () {
+                    res.json({ message: "No user found" })
+                    return foundData = false
+                }
+            )
+
+            if (foundData == false) {
+                {
+                    return
+                }
+            }
+
+            if (userData != null && thoughtData != null) {
+
+                const reaction = {
+                    reactionId: new ObjectID(),
+                    reactionBody: req.body.reactionBody,
+                    username: userData.username,
+                    createdBy: userData._id,
+
+                }
+
+                thoughtData.reactions[thoughtData.reactions.length] = reaction;
+
+
+                await thoughtData.save();
+
+                res.json(thoughtData)
+            }
+
+            if (userData == null) {
+                res.json({ message: 'User returned NULL' })
+            }
+            if (thoughtData == null) {
+                res.json({ message: 'Thought returned NULL' })
+            }
+
+            if (thoughtData == null && userData == null) {
+                res.json({ message: 'Both User and Thought returned NULL' })
+            }
+
+
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(500).json(err);
+    }
+
+}
+
+
+async function deleteReaction(req, res) {
+    try {
+        let foundData = true;
+        const thoughtData = await Thought.findOne({ _id: req.params.thoughtId }).catch(
+            function () {
+                res.json({ message: "No thought found" })
+                return foundData = false
+            }
+        )
+
+        if (foundData == false) {
+            {
+                return
+            }
+        }
+
+
+        if (thoughtData == null) {
+            res.json({ message: `This thought _id returned NULL` })
+            return
+        }
+
+        let hasReaction = false
+        for (let i = 0; i < thoughtData.reactions.length; i++) {
+            if (`${thoughtData.reactions[i].reactionId.toJSON()}` == `${req.params.reactionId}`) {
+                hasReaction = true
+            }
+        }
+
+        if (hasReaction == true) {
+            reactionArr = thoughtData.reactions
+            thoughtData.reactions = []
+
+            for (let i = 0; i < reactionArr.length; i++) {
+                if (`${reactionArr[i].reactionId.toJSON()}` != `${req.params.reactionId}`) {
+                    thoughtData.reactions[thoughtData.reactions.length] = reactionArr[i]
+                }
+
+            }
+
+            await thoughtData.save();
+
+            res.json(thoughtData)
+
+            return
+        }
+
+        if (hasReaction == false) {
+            res.json({ message: `This reaction is not available to delete` })
+            return
+        }
+
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json(err);
+    }
+}
+
 module.exports = {
     getThoughts,
     getThought,
     createThought,
     updateThought,
     deleteThought,
+    createReaction,
+    deleteReaction
 }

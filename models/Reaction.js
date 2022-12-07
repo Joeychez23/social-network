@@ -20,8 +20,14 @@ const reactionSchema = new Schema(
       default: Date.now,
       //Format Date
     },
+    createdBy:
+    {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+    },
     versionKey: false
   },
+  { _id : false },
   {
     toJSON: {
       getters: true,

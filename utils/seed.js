@@ -56,7 +56,7 @@ connection.once('open', async () => {
     for (let j = 0; j < thoughts.length; j++) {
       if (users[i].username == thoughts[j].username) {
         users[i].thoughts[users[i].thoughts.length] = thoughts[j]._id
-        thoughts[j].createdBy = users[i]._id
+        //thoughts[j].createdBy = users[i]._id
       }
     }
   }

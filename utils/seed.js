@@ -51,12 +51,12 @@ connection.once('open', async () => {
   }
 
 
-
   for (let i = 0; i < users.length; i++) {
     users[i].thoughts = new Array;
     for (let j = 0; j < thoughts.length; j++) {
       if (users[i].username == thoughts[j].username) {
-        users[i].thoughts[users[i].thoughts.length] = thoughts[j]
+        users[i].thoughts[users[i].thoughts.length] = thoughts[j]._id
+        thoughts[j].createdBy = users[i]._id
       }
     }
   }
@@ -77,11 +77,7 @@ connection.once('open', async () => {
         }
       }
       if (check == users[i].friends.length) {
-        users[i].friends[users[i].friends.length] = { 
-          _id: users[friendIndex]._id,
-          username: users[friendIndex].username,
-          email: users[friendIndex].email,
-         }
+        users[i].friends[users[i].friends.length] = users[friendIndex]._id
       }
     }
   }
@@ -90,12 +86,9 @@ connection.once('open', async () => {
   await User.collection.insertMany(users)
   await Thought.collection.insertMany(thoughts);
 
-  //await User.bulkSave(users)
-  //await Thought.bulkSave(thoughts)
-
   // loop through the saved thoughtss, for each thoughts we need to generate a thoughts response and insert the thoughts responses
-  console.table(users);
-  console.table(thoughts);
+  //console.table(users);
+  //console.table(thoughts);
   console.info('Seeding complete! 🌱');
   process.exit(0);
 });

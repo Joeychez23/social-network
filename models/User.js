@@ -1,9 +1,10 @@
 const { Schema, model } = require('mongoose');
 
-
-
 const userSchema = new Schema({
-    username: String,
+    username: {
+        type: String,
+        unique: true
+    },
     email: {
         type: String,
         unique: true,
@@ -12,31 +13,29 @@ const userSchema = new Schema({
     },
     thoughts: [
         {
-            _id: {
-                type: Schema.Types.ObjectId,
-                ref: "Thought"
-            },
+            type: Schema.Types.ObjectId,
+            ref: "Thought",
         },
     ],
     friends: [
         {
-            _id: {
-                type: Schema.Types.ObjectId,
-                ref: "User"
-            },
+            type: Schema.Types.ObjectId,
+            ref: "User",
         },
-    ]
-
+    ],
 }, {
     toJSON: {
         virtuals: true,
         getters: true,
         minimize: false
     },
+    toObject: {
+        virtuals: true,
+    },
     id: false,
 })
 
-userSchema.virtual("friendCount").get(function() {
+userSchema.virtual("friendCount").get(function () {
     return this.friends.length
 })
 

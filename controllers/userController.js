@@ -134,7 +134,27 @@ async function updateUser(req, res) {
         if (passedName == true && passedEmail == true) {
             data.username = req.body.username;
             data.email = req.body.email
+            
             await data.save();
+
+            const thoughtData = await Thought.find({})
+
+            for(let i = 0; i < thoughtData.length; i++) {
+                if(thoughtData[i].createdBy.toJSON() == req.params.userId) {
+                    thoughtData[i].username = req.body.username;
+                }
+                for(let j =0; j < thoughtData[i].reactions.length; j++) {
+                    if(thoughtData[i].reactions[j].createdBy.toJSON() == req.params.userId) {
+                        thoughtData[i].reactions[j].username = req.body.username;
+                    }
+                }
+            }
+
+            for(let i =0; i < thoughtData.length; i++) {
+                await thoughtData[i].save();
+            }
+            res.json(data);
+
 
         }
         if (passedName == false && passedEmail == false) {
@@ -150,8 +170,8 @@ async function updateUser(req, res) {
             res.json({ message: 'Email taken' })
             return
         }
-        res.json(data);
     } catch (err) {
+        console.log(err)
         res.status(500).json(err);
     }
 

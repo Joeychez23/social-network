@@ -165,8 +165,6 @@ async function updateUser(req, res) {
             for (let i = 0; i < indexesUsed.length; i++) {
                 await thoughtData[indexesUsed[i]].save();
             }
-
-            console.log('passed')
             return
 
 

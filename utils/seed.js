@@ -13,7 +13,7 @@ connection.once('open', async () => {
 
   const users = [];
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 50; i++) {
     const username = getRandomName();
 
     const email = `${username}@test.com`

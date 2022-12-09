@@ -5,7 +5,7 @@ async function getUsers(req, res) {
     try {
         const data = await User.find({})
 
-        if(data == null) {
+        if (data == null) {
             res.json({ message: "No Users found" })
             return
         }
@@ -32,7 +32,7 @@ async function getUser(req, res) {
                 return
             }
         }
-        if(data == null) {
+        if (data == null) {
             res.json({ message: "No User found" })
             return
         }
@@ -51,7 +51,7 @@ async function createUser(req, res) {
         let passedEmail = true;
 
         const allData = await User.find({})
-        if(allData == null) {
+        if (allData == null) {
             res.json({ message: "No Users found" })
             return
         }
@@ -110,7 +110,7 @@ async function updateUser(req, res) {
                 return
             }
         }
-        if(data == null) {
+        if (data == null) {
             res.json({ message: "No User found" })
             return
         }
@@ -118,7 +118,7 @@ async function updateUser(req, res) {
         let passedName = true;
         let passedEmail = true;
         const allData = await User.find({})
-        if(allData == null) {
+        if (allData == null) {
             res.json({ message: "No Users found" })
             return
         }
@@ -134,16 +134,20 @@ async function updateUser(req, res) {
         if (passedName == true && passedEmail == true) {
             data.username = req.body.username;
             data.email = req.body.email
-            
+
             await data.save();
+
+            res.json(data);
 
             const thoughtData = await Thought.find({})
 
             let indexesUsed = new Array;
-            for(let i = 0; i < thoughtData.length; i++) {
-                if(thoughtData[i].createdBy.toJSON() == req.params.userId) {
+            
+            for (let i = 0; i < thoughtData.length; i++) {
+                if (thoughtData[i].createdBy.toJSON() == req.params.userId) {
                     thoughtData[i].username = req.body.username;
                 }
+                
                 for(let j = 0; j < thoughtData[i].reactions.length; j++) {
                     if(thoughtData[i].reactions[j].createdBy.toJSON() == req.params.userId) {
                         thoughtData[i].reactions[j].username = req.body.username;
@@ -151,11 +155,33 @@ async function updateUser(req, res) {
                     }
                 }
             }
+            
 
-            for(let i = 0; i < indexesUsed.length; i++) {
+            /*
+            for (let i = 0; i < thoughtData.length; i++) {
+                if (thoughtData[i].createdBy.toJSON() == req.params.userId) {
+                    thoughtData[i].username = req.body.username;
+                }
+                let maxIndex = thoughtData[i].reactions.length
+                let minIndex = 0;
+
+                while(minIndex != maxIndex) {
+                    if(thoughtData[i].reactions[minIndex].createdBy.toJSON() == req.params.userId) {
+                        thoughtData[i].reactions[minIndex].username = req.body.username;
+                        indexesUsed[indexesUsed.length] = minIndex;
+                    }
+                    minIndex += 1;
+                }
+            }
+
+            console.log(indexesUsed);*/
+
+
+            for (let i = 0; i < indexesUsed.length; i++) {
                 await thoughtData[indexesUsed[i]].save();
             }
-            res.json(data);
+
+            console.log('passed')
 
 
         }
@@ -182,7 +208,7 @@ async function updateUser(req, res) {
 async function deleteUser(req, res) {
     try {
         const dataAll = await User.find({})
-        if(dataAll == null) {
+        if (dataAll == null) {
             res.json({ message: "No Users found" })
             return
         }
@@ -246,11 +272,11 @@ async function addFriend(req, res) {
                 return
             }
         }
-        if(userData == null) {
+        if (userData == null) {
             res.json({ message: "No User found" })
             return
         }
-        if(friendData == null) {
+        if (friendData == null) {
             res.json({ message: "No Friend found" })
             return
         }
@@ -302,11 +328,11 @@ async function deleteFriend(req, res) {
                 return
             }
         }
-        if(userData == null) {
+        if (userData == null) {
             res.json({ message: "No User found" })
             return
         }
-        if(friendData == null) {
+        if (friendData == null) {
             res.json({ message: "No Friend found" })
             return
         }
@@ -320,8 +346,8 @@ async function deleteFriend(req, res) {
         if (hasFriend == true) {
             let friendArr = userData.friends
             userData.friends = []
-            for(let i = 0; i < friendArr.length; i++) {
-                if(`${friendArr[i].toJSON()}` != `${friendData._id.toJSON()}`) {
+            for (let i = 0; i < friendArr.length; i++) {
+                if (`${friendArr[i].toJSON()}` != `${friendData._id.toJSON()}`) {
                     userData.friends[userData.friends.length] = friendArr[i];
                 }
             }

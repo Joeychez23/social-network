@@ -139,19 +139,21 @@ async function updateUser(req, res) {
 
             const thoughtData = await Thought.find({})
 
+            let indexesUsed = new Array;
             for(let i = 0; i < thoughtData.length; i++) {
                 if(thoughtData[i].createdBy.toJSON() == req.params.userId) {
                     thoughtData[i].username = req.body.username;
                 }
-                for(let j =0; j < thoughtData[i].reactions.length; j++) {
+                for(let j = 0; j < thoughtData[i].reactions.length; j++) {
                     if(thoughtData[i].reactions[j].createdBy.toJSON() == req.params.userId) {
                         thoughtData[i].reactions[j].username = req.body.username;
+                        indexesUsed[indexesUsed.length] = i;
                     }
                 }
             }
 
-            for(let i =0; i < thoughtData.length; i++) {
-                await thoughtData[i].save();
+            for(let i = 0; i < indexesUsed.length; i++) {
+                await thoughtData[indexesUsed[i]].save();
             }
             res.json(data);
 

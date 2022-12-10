@@ -1,5 +1,4 @@
 const { User, Thought } = require('../models');
-//const { find } = require('../models/User');
 
 async function getUsers(req, res) {
     try {
@@ -118,20 +117,19 @@ async function updateUser(req, res) {
         // Set back to false
         let passedName = true;
         let passedEmail = true;
-        const allData = await User.find({})
-        if (allData == null) {
-            res.json({ message: "No Users found" })
-            return
-        }
-        for (let i = 0; i < allData.length; i++) {
-            if (allData[i].username == req.body.username) {
-                passedName = false;
-            }
-            if (allData[i].email == req.body.email) {
-                passedEmail = false
-            }
+        const allName = await User.find({username: req.body.username})
+        const allEmail = await User.find({email: req.body.email})
 
+
+        if(allName.length > 0) {
+            passedName = false
         }
+
+        if(allEmail.length > 0) {
+            passedEmail = false
+        }
+
+
 
         if (passedName == true && passedEmail == true) {
             data.username = req.body.username;

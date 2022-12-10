@@ -50,20 +50,16 @@ async function createUser(req, res) {
         let passedName = true;
         let passedEmail = true;
 
-        const allData = await User.find({})
-        if (allData == null) {
-            res.json({ message: "No Users found" })
-            return
+        const allName = await User.find({username: req.body.username})
+        const allEmail = await User.find({email: req.body.email})
+
+
+        if(allName.length > 0) {
+            passedName = false
         }
 
-        for (let i = 0; i < allData.length; i++) {
-            if (allData[i].username == req.body.username) {
-                passedName = false;
-            }
-            if (allData[i].email == req.body.email) {
-                passedEmail = false
-            }
-
+        if(allEmail.length > 0) {
+            passedEmail = false
         }
 
         if (passedName == true && passedEmail == true) {
@@ -121,6 +117,7 @@ async function updateUser(req, res) {
         const allEmail = await User.find({email: req.body.email})
 
 
+        
         if(allName.length > 0) {
             passedName = false
         }
@@ -175,15 +172,22 @@ async function updateUser(req, res) {
 
         if(passedName == false && passedEmail == true) {
             data.email = req.body.email;
-
             await data.save();
-
-            res.json(data)
+            res.json(
+                { 
+                message: 'Name was taken. email added',
+                data: data
+                }
+            )
             return
 
         }
         if (passedName == false && passedEmail == false) {
-            res.json({ message: 'Both name and email are taken' })
+            res.json(
+                { 
+                    message: 'Both name and email are taken',
+                    data: data
+                })
             return
 
         }

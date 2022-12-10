@@ -1,5 +1,5 @@
 const { User, Thought } = require('../models');
-const { find } = require('../models/User');
+//const { find } = require('../models/User');
 
 async function getUsers(req, res) {
     try {
@@ -124,17 +124,16 @@ async function updateUser(req, res) {
             return
         }
         for (let i = 0; i < allData.length; i++) {
-            if (allData[i].username == req.body.username) {// allData[i]._id != req.params.userId) {
+            if (allData[i].username == req.body.username) {
                 passedName = false;
             }
-            if (allData[i].email == req.body.email) { // allData[i]._id != req.params.userId) {
+            if (allData[i].email == req.body.email) {
                 passedEmail = false
             }
 
         }
+
         if (passedName == true && passedEmail == true) {
-            //Changing the username is useless, the createdBy value should be used in to get user data individual thoughts to make less calls
-            //The username shouldn't be in the reaction instead we should make user calls when on a certan thought to increase performance 
             data.username = req.body.username;
             data.email = req.body.email
 
@@ -142,66 +141,33 @@ async function updateUser(req, res) {
 
             res.json(data);
 
-            const thoughtData = await Thought.find({})
 
-            let indexesUsed = new Array;
-            
+            await Thought.updateMany({createdBy: req.params.userId}, {$set: {username: req.body.username} });
 
-            for (let i = 0; i < thoughtData.length; i++) {
-                if (thoughtData[i].createdBy.toJSON() == req.params.userId) {
-                    thoughtData[i].username = req.body.username;
-                }
-                
-                for(let j = 0; j < thoughtData[i].reactions.length; j++) {
-                    if(thoughtData[i].reactions[j].createdBy.toJSON() == req.params.userId) {
-                        thoughtData[i].reactions[j].username = req.body.username;
-                        indexesUsed[indexesUsed.length] = i;
-                    }
-                }
-            }
-            
+            await Thought.updateMany({ 'reactions.createdBy': req.params.userId}, {$set: {
+                'reactions.$.username': req.body.username,
+            }});
 
 
-            for (let i = 0; i < indexesUsed.length; i++) {
-                await thoughtData[indexesUsed[i]].save();
-            }
+            console.log('passed')
             return
 
 
         }
 
         if (passedName == true && passedEmail == false) {
-            //Changing the username is useless, the createdBy value should be used in to get user data individual thoughts to make less calls
-            //The username shouldn't be in the reaction instead we should make user calls when on a certan thought to increase performance 
             data.username = req.body.username;
 
             await data.save();
 
             res.json(data);
 
-            const thoughtData = await Thought.find({})
+            await Thought.updateMany({createdBy: req.params.userId}, {$set: {username: req.body.username} });
 
-            let indexesUsed = new Array;
-            
-            for (let i = 0; i < thoughtData.length; i++) {
-                if (thoughtData[i].createdBy.toJSON() == req.params.userId) {
-                    thoughtData[i].username = req.body.username;
-                }
-                
-                for(let j = 0; j < thoughtData[i].reactions.length; j++) {
-                    if(thoughtData[i].reactions[j].createdBy.toJSON() == req.params.userId) {
-                        thoughtData[i].reactions[j].username = req.body.username;
-                        indexesUsed[indexesUsed.length] = i;
-                    }
-                }
-            }
-            
-
-
-            for (let i = 0; i < indexesUsed.length; i++) {
-                console.log(`${i}`);
-                await thoughtData[indexesUsed[i]].save();
-            }
+            await Thought.updateMany({ 'reactions.createdBy': req.params.userId}, {$set: {
+                'reactions.$.username': req.body.username,
+            }});
+ 
 
             console.log('passed')
             return
@@ -223,15 +189,6 @@ async function updateUser(req, res) {
             return
 
         }
-        /*
-        if (passedName == false) {
-            res.json({ message: 'Username taken' })
-            return
-        }
-        if (passedEmail == false) {
-            res.json({ message: 'Email taken' })
-            return
-        }*/
     } catch (err) {
         console.log(err)
         res.status(500).json(err);
@@ -241,29 +198,14 @@ async function updateUser(req, res) {
 
 async function deleteUser(req, res) {
     try {
-        const dataAll = await User.find({})
+        const dataAll = await User.find({'friends': { $all: [req.params.userId]}})
         if (dataAll == null) {
             res.json({ message: "No Users found" })
             return
         }
-        let delFriendIndex = new Array
-        for (let i = 0; i < dataAll.length; i++) {
-            friendArr = dataAll[i].friends
-            dataAll[i].friends = []
-            for (let j = 0; j < friendArr.length; j++) {
-                if (`${friendArr[j].toJSON()}` == `${req.params.userId}`) {
-                    delFriendIndex[delFriendIndex.length] = i
-                    //console.log(`\nfailed at data: ${i}, friends ${j}`)
-                }
-                if (`${friendArr[j].toJSON()}` != `${req.params.userId}`) {
-                    //console.log(`\npassed at data: ${i}, friends ${j}`)
-                    dataAll[i].friends[dataAll[i].friends.length] = friendArr[j]
-                }
-            }
-        }
-        for (let i = 0; i < delFriendIndex.length; i++) {
-            await dataAll[delFriendIndex[i]].save()
-        }
+
+        await User.updateMany({'friends': { $all: [req.params.userId]}}, {$pull: {'friends': { $all: [req.params.userId]}}})
+
 
         const data = await User.deleteOne({ _id: req.params.userId });
 
@@ -275,7 +217,7 @@ async function deleteUser(req, res) {
 
         }
         if (data.deletedCount == 0) {
-            res.json({ message: 'Not Found' })
+            res.json({ message: 'Nothing availible to delete' })
         }
     } catch (err) {
         console.log(err)

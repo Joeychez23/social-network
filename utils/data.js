@@ -101,7 +101,7 @@ const getRandomName = () =>
 // Function to generate random videos that we can add to the database. Includes video responses.
 const getRandomThoughts = (users) => {
     let results = [];
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 5000; i++) {
         let user = users[Math.floor(Math.random() * users.length)]
         results.push({
             createdAt: new Date,
@@ -117,7 +117,8 @@ const getRandomThoughts = (users) => {
 // Create the responses that will be added to each video
 const getThoughtReactions = (users) => {
     let results = [];
-    for (let i = 0; i < Math.floor(Math.random() * 2000); i++) {
+    //Math.floor(Math.random() * 100)
+    for (let i = 0; i < 100; i++) {
         let user = users[Math.floor(Math.random() * users.length)]
         results.push({
             reactionId: new ObjectID(),

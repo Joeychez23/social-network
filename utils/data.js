@@ -101,7 +101,7 @@ const getRandomName = () =>
 // Function to generate random videos that we can add to the database. Includes video responses.
 const getRandomThoughts = (users) => {
     let results = [];
-    for (let i = 0; i < 5000; i++) {
+    for (let i = 0; i < 1500; i++) {
         let user = users[Math.floor(Math.random() * users.length)]
         results.push({
             createdAt: new Date,

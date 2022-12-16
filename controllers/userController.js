@@ -8,7 +8,6 @@ async function getUsers(req, res) {
             res.json({ message: "No Users found" })
             return
         }
-        console.log('hello')
         res.json(data);
     } catch (err) {
         res.status(500).json(err);
@@ -36,6 +35,9 @@ async function getUser(req, res) {
             res.json({ message: "No User found" })
             return
         }
+        await data.populate('friends')
+
+
         res.json(data);
     } catch (err) {
         res.status(500).json(err);
@@ -273,6 +275,7 @@ async function addFriend(req, res) {
         if (hasFriend == false) {
             userData.friends[userData.friends.length] = friendData._id
             await userData.save();
+            await userData.populate('friends')
             res.json(userData)
             return
         }
@@ -330,6 +333,7 @@ async function deleteFriend(req, res) {
                 }
             }
 
+            await userData.populate('friends')
             await userData.save();
             res.json(userData)
             return

@@ -13,7 +13,7 @@ connection.once('open', async () => {
 
   const users = [];
 
-  for (let i = 0; i < 1000; i++) {
+  for (let i = 0; i < 500; i++) {
     const username = `test${i}`//getRandomName();
 
     const email = `${username}@test.com`
@@ -67,7 +67,8 @@ connection.once('open', async () => {
 
   for (let i = 0; i < users.length; i++) {
     users[i].friends = new Array;
-    friendAmount = Math.floor(Math.random() * users.length)
+    let friendAmount = Math.floor(Math.random() * users.length)
+    friendAmount = 20;
     for (let j = 0; j < friendAmount; j++) {
       let check = 0;
       let friendIndex = Math.floor(Math.random() * users.length)

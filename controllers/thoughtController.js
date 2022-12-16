@@ -10,6 +10,8 @@ async function getThoughts(req, res) {
             res.json({ message: "No thoughts found" })
             return
         }
+
+        console.log(data)
         res.json(data);
     } catch (err) {
         res.status(500).json(err);

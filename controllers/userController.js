@@ -157,6 +157,8 @@ async function updateUser(req, res) {
 
             await data.save();
 
+            await data.populate('friends')
+
             res.json(data);
 
             await Thought.updateMany({createdBy: req.params.userId}, {$set: {username: req.body.username} });
@@ -175,6 +177,7 @@ async function updateUser(req, res) {
         if(passedName == false && passedEmail == true) {
             data.email = req.body.email;
             await data.save();
+            await data.populate('friends')
             res.json(
                 { 
                 message: 'Name was taken. email added',
@@ -185,6 +188,7 @@ async function updateUser(req, res) {
 
         }
         if (passedName == false && passedEmail == false) {
+            await data.populate('friends')
             res.json(
                 { 
                     message: 'Both name and email are taken',

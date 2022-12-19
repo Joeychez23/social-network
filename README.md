@@ -63,7 +63,7 @@ Create Thought: [POST] http://localhost:3000/api/thoughts/
 
   "thoughtText": "Here's a cool thought...",
 
-  "createdBy": "639fbf49ed623ffe1b35e0db"
+  "createdBy": "[_id]"
 }
 
 Update Thought: [PUT] http://localhost:3000/api/thoughts/[_id]
@@ -72,7 +72,7 @@ Update Thought: [PUT] http://localhost:3000/api/thoughts/[_id]
 
   "thoughtText": "Here's a cool thought",
 
-  "createdBy": "639fbe6aeae156c80c59189c"
+  "createdBy": "[_id]"
 }
 
 Delete Thought: [DELETE] http://localhost:3000/api/thoughts/[_id]
